@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import express from 'express';
 import helmet from 'helmet';
 import multer from 'multer';
@@ -10,6 +10,9 @@ import { requireApiAuth, isAuthEnabled } from './auth.js';
 import { requestLog, setRequestMeta } from './requestLog.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// PM2 cwd yanlış olsa bile proje kökündeki .env'i yükle
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MAX_FILE_SIZE_MB = Number(process.env.OCR_MAX_FILE_SIZE_MB || 25);
