@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 process.env.OCR_MAX_FILE_SIZE_MB = '0.001'; // ~1KB
 process.env.MISTRAL_API_KEY = '';
 
-const { processFile } = await import('../src/ocr/index.js');
+const { processFile } = await import('../ocr/index.js');
 
 test('düz metin dosyasını OCR uygulamadan aynı zarfla döner', async () => {
   const result = await processFile({ buffer: Buffer.from('merhaba dünya'), fileName: 'a.txt' });

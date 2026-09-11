@@ -10,8 +10,7 @@ import { requireApiAuth, isAuthEnabled } from './auth.js';
 import { requestLog, setRequestMeta } from './requestLog.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// PM2 cwd yanlış olsa bile proje kökündeki .env'i yükle
-dotenv.config({ path: path.join(__dirname, '..', '.env') });
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,14 +23,6 @@ app.use(helmet());
 // JSON gövdesi base64 girdiyi taşıyabilir (~%37 şişme payı bırakılır).
 app.use(express.json({ limit: `${Math.ceil(MAX_FILE_SIZE_MB * 1.4)}mb` }));
 app.use(requestLog);
-
-app.use(express.static(path.join(__dirname, '..', 'public')));
-app.get('/vendor/marked.js', (req, res) =>
-  res.sendFile(path.join(__dirname, '..', 'node_modules', 'marked', 'lib', 'marked.umd.js')),
-);
-app.get('/vendor/dompurify.js', (req, res) =>
-  res.sendFile(path.join(__dirname, '..', 'node_modules', 'dompurify', 'dist', 'purify.min.js')),
-);
 
 // Her dosya türünü kabul eder — mimetype/uzantı filtresi yok; gerçek tür
 // tespiti ocr/detectFileType.js içinde magic-byte ile yapılır.
@@ -199,12 +190,10 @@ app.use((err, req, res, next) => {
   res.status(500).json({ ok: false, error: { code: 'INTERNAL_ERROR', message: 'Beklenmeyen bir hata oluştu.' } });
 });
 
-// Testlerin app'i kendi (efemer) portunda başlatabilmesi için gerçek
-// dinlemeyi yalnızca bu dosya doğrudan çalıştırıldığında (npm start) yapıyoruz.
-const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-if (isMain) {
-  const server = app.listen(PORT, () => {
-    console.log(`Arcon OCR http://localhost:${PORT} adresinde çalışıyor`);
+// Testler OCR_SKIP_LISTEN=1 ile import eder; PM2/npm start her zaman dinler.
+if (process.env.OCR_SKIP_LISTEN !== '1') {
+  const server = app.listen(PORT, '127.0.0.1', () => {
+    console.log(`Arcon OCR http://127.0.0.1:${PORT} adresinde çalışıyor`);
     console.log(
       process.env.MISTRAL_API_KEY
         ? 'Mistral OCR: yapılandırıldı'

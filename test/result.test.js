@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildResult } from '../src/ocr/result.js';
+import { buildResult } from '../ocr/result.js';
 
 test('override verilmeden çağrıldığında tam ve tutarlı varsayılan zarfı döner', () => {
   const result = buildResult();

@@ -1,12 +1,12 @@
 {
   "name": "arcon-ocr",
   "version": "1.0.0",
-  "description": "Esnek, çok-motorlu OCR servisi + test UI. Her dosya türünü kabul eder, tek tip sonuç döndürür.",
+  "description": "OCR API — structured invoice JSON (JDE) via Mistral OCR.",
   "type": "module",
-  "main": "src/server.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
+    "start": "node server.js",
+    "dev": "node --watch server.js",
     "test": "node --test test/*.test.js"
   },
   "engines": {
@@ -14,13 +14,11 @@
   },
   "dependencies": {
     "@mistralai/mistralai": "^1.7.1",
-    "dompurify": "^3.4.14",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-rate-limit": "^8.6.2",
     "file-type": "^21.3.4",
     "helmet": "^8.3.0",
-    "marked": "^18.0.11",
     "multer": "^2.0.0",
     "tesseract.js": "^5.1.1"
   },

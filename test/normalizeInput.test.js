@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeInput } from '../src/ocr/normalizeInput.js';
+import { normalizeInput } from '../ocr/normalizeInput.js';
 
 test('buffer girdisini olduğu gibi geçirir', async () => {
   const buf = Buffer.from('merhaba');

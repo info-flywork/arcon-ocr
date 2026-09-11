@@ -1,8 +1,6 @@
 # Arcon OCR API Documentation
 
-**Base URL:** `https://arcon-oc.fly-work.com`  
-**Web docs:** `https://arcon-oc.fly-work.com/docs.html`  
-**Test UI:** `https://arcon-oc.fly-work.com/`  
+**Base URL:** `https://arcon-ocr.fly-work.com`  
 **Version:** 1.0
 
 Arcon OCR extracts structured invoice data (and optionally raw OCR text) from PDF, images, and Office documents. By default it returns a **JDE-ready invoice JSON** — not a raw OCR envelope.
@@ -31,7 +29,7 @@ Arcon OCR extracts structured invoice data (and optionally raw OCR text) from PD
 
 | Property | Value |
 |----------|-------|
-| Base URL | `https://arcon-oc.fly-work.com` |
+| Base URL | `https://arcon-ocr.fly-work.com` |
 | Default profile | `jde_invoice` |
 | Default response | Structured invoice JSON only |
 | Max file size | **25 MB** (configurable) |
@@ -53,7 +51,7 @@ Arcon OCR extracts structured invoice data (and optionally raw OCR text) from PD
 
 | | |
 |--|--|
-| **URL** | `POST https://arcon-oc.fly-work.com/api/ocr` |
+| **URL** | `POST https://arcon-ocr.fly-work.com/api/ocr` |
 | **Auth** | `Authorization: Bearer YOUR_API_TOKEN` |
 | **Body** | `multipart/form-data` — field name **`file`** = invoice PDF/image |
 | **Timeout** | ≥ 180 seconds |
@@ -63,7 +61,7 @@ Without a valid token → **HTTP 401**.
 ### cURL
 
 ```bash
-curl -X POST "https://arcon-oc.fly-work.com/api/ocr" \
+curl -X POST "https://arcon-ocr.fly-work.com/api/ocr" \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
   -F "file=@./invoice.pdf"
 ```
@@ -77,7 +75,7 @@ import FormData from 'form-data'; // npm i form-data
 const form = new FormData();
 form.append('file', fs.createReadStream('./invoice.pdf'));
 
-const response = await fetch('https://arcon-oc.fly-work.com/api/ocr', {
+const response = await fetch('https://arcon-ocr.fly-work.com/api/ocr', {
   method: 'POST',
   headers: {
     Authorization: 'Bearer YOUR_API_TOKEN',
@@ -96,7 +94,7 @@ console.log(invoice);
 import requests
 
 response = requests.post(
-    "https://arcon-oc.fly-work.com/api/ocr",
+    "https://arcon-ocr.fly-work.com/api/ocr",
     headers={"Authorization": "Bearer YOUR_API_TOKEN"},
     files={"file": open("invoice.pdf", "rb")},
     timeout=180,
@@ -124,7 +122,7 @@ MultipartBody body = new MultipartBody.Builder()
     .build();
 
 Request request = new Request.Builder()
-    .url("https://arcon-oc.fly-work.com/api/ocr")
+    .url("https://arcon-ocr.fly-work.com/api/ocr")
     .addHeader("Authorization", "Bearer YOUR_API_TOKEN")
     .post(body)
     .build();
@@ -145,7 +143,7 @@ using var content = new MultipartFormDataContent();
 await using var stream = File.OpenRead("invoice.pdf");
 content.Add(new StreamContent(stream), "file", "invoice.pdf");
 
-var response = await client.PostAsync("https://arcon-oc.fly-work.com/api/ocr", content);
+var response = await client.PostAsync("https://arcon-ocr.fly-work.com/api/ocr", content);
 var invoiceJson = await response.Content.ReadAsStringAsync();
 Console.WriteLine(invoiceJson);
 ```
@@ -153,7 +151,7 @@ Console.WriteLine(invoiceJson);
 ### Optional: public URL instead of file upload
 
 ```bash
-curl -X POST "https://arcon-oc.fly-work.com/api/ocr" \
+curl -X POST "https://arcon-ocr.fly-work.com/api/ocr" \
   -H "Authorization: Bearer YOUR_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"url":"https://example.com/public-invoice.pdf"}'
@@ -512,7 +510,7 @@ Dates like `31-03-2026` become `2026-03-31`.
 ## Full OCR envelope (debug)
 
 ```bash
-curl -X POST "https://arcon-oc.fly-work.com/api/ocr" \
+curl -X POST "https://arcon-ocr.fly-work.com/api/ocr" \
   -F "file=@./invoice.pdf" \
   -F "profile=none" \
   -F "responseMode=full"

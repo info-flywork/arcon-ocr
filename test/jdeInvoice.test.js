@@ -6,8 +6,8 @@ import {
   asNumber,
   normalizeDate,
   parseQuantityUnit,
-} from '../src/ocr/profiles/jdeInvoice.js';
-import { resolveProfile } from '../src/ocr/profiles/index.js';
+} from '../ocr/profiles/jdeInvoice.js';
+import { resolveProfile } from '../ocr/profiles/index.js';
 
 test('jde_invoice profili çözümlenir', () => {
   assert.equal(resolveProfile('jde_invoice')?.id, 'jde_invoice');

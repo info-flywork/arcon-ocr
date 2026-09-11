@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { detectFileType } from '../src/ocr/detectFileType.js';
+import { detectFileType } from '../ocr/detectFileType.js';
 
 // Gerçek, geçerli 1x1 saydam PNG (yalnızca 8 baytlık imza file-type için
 // yetersiz kalıyor; kütüphane IHDR/CRC gibi ek baytları da doğruluyor).

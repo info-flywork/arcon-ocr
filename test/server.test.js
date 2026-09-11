@@ -1,12 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-// Boş string olarak ayarlanır (silinmez): server.js içindeki `dotenv/config`
+// Boş string olarak ayarlanır (silinmez): server.js içindeki dotenv
 // zaten tanımlı olan bir env değişkenini ezmez, ama silinmiş/tanımsız bir
 // değişkeni .env dosyasından (varsa gerçek bir API key) doldurur.
 process.env.MISTRAL_API_KEY = '';
 process.env.API_AUTH_TOKEN = '';
-const { default: app } = await import('../src/server.js');
+process.env.OCR_SKIP_LISTEN = '1';
+const { default: app } = await import('../server.js');
 
 async function withServer(fn) {
   const server = app.listen(0);
