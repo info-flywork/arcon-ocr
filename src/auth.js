@@ -57,6 +57,12 @@ export function requireApiAuth(req, res, next) {
 
   const provided = extractRequestToken(req);
   if (!provided || !safeEqual(provided, expected)) {
+    req.logMeta = {
+      ...(req.logMeta || {}),
+      route: 'ocr',
+      auth: 'failed',
+      errorCode: 'UNAUTHORIZED',
+    };
     return res.status(401).json({
       ok: false,
       error: {
@@ -66,5 +72,6 @@ export function requireApiAuth(req, res, next) {
     });
   }
 
+  req.logMeta = { ...(req.logMeta || {}), auth: 'ok' };
   return next();
 }

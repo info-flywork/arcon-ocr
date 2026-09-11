@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { rateLimit } from 'express-rate-limit';
 import { processFile } from './ocr/index.js';
 import { requireApiAuth, isAuthEnabled } from './auth.js';
+import { requestLog, setRequestMeta } from './requestLog.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -19,6 +20,7 @@ app.use(helmet());
 
 // JSON gövdesi base64 girdiyi taşıyabilir (~%37 şişme payı bırakılır).
 app.use(express.json({ limit: `${Math.ceil(MAX_FILE_SIZE_MB * 1.4)}mb` }));
+app.use(requestLog);
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.get('/vendor/marked.js', (req, res) =>
@@ -60,6 +62,7 @@ const STATUS_BY_ERROR_CODE = {
 };
 
 app.get('/api/health', (req, res) => {
+  setRequestMeta(req, { route: 'health' });
   res.json({
     ok: true,
     mistralConfigured: Boolean(process.env.MISTRAL_API_KEY),
@@ -77,13 +80,18 @@ app.post(
     const provider = body.provider || req.query.provider || 'auto';
 
     let input;
+    let inputType;
     if (req.file) {
+      inputType = 'file';
       input = { buffer: req.file.buffer, fileName: req.file.originalname, mimeType: req.file.mimetype };
     } else if (body.url) {
+      inputType = 'url';
       input = { url: body.url, fileName: body.fileName };
     } else if (body.base64) {
+      inputType = 'base64';
       input = { base64: body.base64, fileName: body.fileName, mimeType: body.mimeType };
     } else {
+      setRequestMeta(req, { route: 'ocr', inputType: 'none', errorCode: 'NO_INPUT' });
       return res.status(400).json({
         ok: false,
         error: { code: 'NO_INPUT', message: 'file (multipart), url veya base64 alanlarından biri gerekli.' },
@@ -91,8 +99,26 @@ app.post(
     }
 
     const options = { provider, ...parseAdvancedOptions(body, req.query) };
+
+    setRequestMeta(req, {
+      route: 'ocr',
+      inputType,
+      provider: options.provider || provider,
+      profile: options.profile || null,
+      fileName: input.fileName || req.file?.originalname || null,
+      fileBytes: req.file?.size ?? null,
+      mimeType: req.file?.mimetype || body.mimeType || null,
+    });
+
     const result = await processFile(input, options);
     const status = result.ok ? 200 : (STATUS_BY_ERROR_CODE[result.error?.code] || 500);
+
+    setRequestMeta(req, {
+      ok: result.ok,
+      errorCode: result.error?.code || null,
+      ocrProvider: result.provider || null,
+      pages: Array.isArray(result.result?.pages) ? result.result.pages.length : undefined,
+    });
 
     // Varsayılan: JDE / structured JSON. Debug için responseMode=full gönderin.
     const responseMode =
@@ -158,11 +184,14 @@ app.use((req, res) => {
 
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
+    setRequestMeta(req, { route: 'ocr', errorCode: 'UPLOAD_ERROR', errorMessage: err.message });
     return res.status(400).json({ ok: false, error: { code: 'UPLOAD_ERROR', message: err.message } });
   }
   if (err.type === 'entity.too.large') {
+    setRequestMeta(req, { route: 'ocr', errorCode: 'PAYLOAD_TOO_LARGE' });
     return res.status(413).json({ ok: false, error: { code: 'PAYLOAD_TOO_LARGE', message: 'İstek gövdesi çok büyük.' } });
   }
+  setRequestMeta(req, { errorCode: 'INTERNAL_ERROR' });
   console.error(err);
   res.status(500).json({ ok: false, error: { code: 'INTERNAL_ERROR', message: 'Beklenmeyen bir hata oluştu.' } });
 });
