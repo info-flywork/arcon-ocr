@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arcon OCR — API Documentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --bg-accent: #e8eef5;
+      --surface: #ffffff;
+      --border: #dde3ea;
+      --border-strong: #c5ced8;
+      --text: #15202b;
+      --muted: #5b6b7c;
+      --accent: #0b6e4f;
+      --accent-soft: #e6f4ef;
+      --accent-hover: #095c42;
+      --method-get: #0b6e4f;
+      --method-post: #1d4ed8;
+      --code-bg: #f0f3f6;
+      --code-border: #e2e8ee;
+      --shadow: 0 1px 2px rgba(21, 32, 43, 0.04), 0 8px 24px rgba(21, 32, 43, 0.04);
+      --radius: 12px;
+      --sidebar-w: 240px;
+      --header-h: 64px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 16px); }
+
+    body {
+      margin: 0;
+      font-family: "DM Sans", sans-serif;
+      background:
+        radial-gradient(1200px 500px at 10% -10%, #dceaf5 0%, transparent 55%),
+        radial-gradient(900px 400px at 100% 0%, #dff3ea 0%, transparent 50%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 15.5px;
+      min-height: 100vh;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+    header.top {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      height: var(--header-h);
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: linear-gradient(145deg, #0b6e4f, #1a8a66);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid #c7e6d8;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+      max-width: 1120px;
+      margin: 0 auto;
+      min-height: calc(100vh - var(--header-h));
+    }
+
+    aside {
+      position: sticky;
+      top: var(--header-h);
+      height: calc(100vh - var(--header-h));
+      overflow-y: auto;
+      padding: 28px 18px 40px 28px;
+      border-right: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    .nav-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 12px 8px;
+    }
+
+    aside ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    aside a {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    aside a:hover {
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      box-shadow: var(--shadow);
+    }
+
+    main {
+      padding: 36px 40px 80px;
+      min-width: 0;
+    }
+
+    .hero {
+      margin-bottom: 36px;
+      padding: 28px 28px 26px;
+      border-radius: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .hero h2 {
+      margin: 0 0 8px;
+      font-size: 1.75rem;
+      letter-spacing: -0.03em;
+      border: none;
+      padding: 0;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 42rem;
+    }
+
+    .base-url {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.84rem;
+      color: var(--text);
+    }
+
+    .base-url span {
+      font-family: "DM Sans", sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    section {
+      margin-bottom: 40px;
+      scroll-margin-top: calc(var(--header-h) + 16px);
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    p { margin: 0 0 12px; color: var(--text); }
+    .muted { color: var(--muted); font-size: 0.92rem; }
+
+    .endpoint {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      margin: 12px 0 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .method {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      padding: 4px 8px;
+      border-radius: 6px;
+      color: #fff;
+    }
+
+    .method.get { background: var(--method-get); }
+    .method.post { background: var(--method-post); }
+
+    .path {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 12px 0 8px;
+      font-size: 0.9rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    th, td {
+      padding: 11px 14px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    th {
+      background: #f7f9fb;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    pre {
+      margin: 12px 0;
+      padding: 16px 18px;
+      overflow-x: auto;
+      background: #1c2430;
+      color: #e8eef5;
+      border-radius: var(--radius);
+      border: 1px solid #2a3544;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      box-shadow: var(--shadow);
+    }
+
+    code {
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    p code, li code, td code {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      color: #183041;
+      padding: 1px 6px;
+      border-radius: 5px;
+      font-size: 0.84em;
+    }
+
+    .callout {
+      margin: 16px 0;
+      padding: 14px 16px;
+      background: var(--accent-soft);
+      border: 1px solid #c7e6d8;
+      border-radius: var(--radius);
+      color: #134d3a;
+      font-size: 0.92rem;
+    }
+
+    .callout strong { color: var(--accent-hover); }
+
+    .checklist {
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .checklist li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .lang-tabs {
+      margin: 16px 0 8px;
+    }
+
+    .lang-tabs input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .lang-tabs .tab-labels {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .lang-tabs .tab-labels label {
+      cursor: pointer;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 600;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .lang-tabs .tab-labels label:hover {
+      border-color: var(--border-strong);
+      color: var(--text);
+    }
+
+    .lang-tabs .panel {
+      display: none;
+    }
+
+    #tab-curl:checked ~ .tab-labels label[for="tab-curl"],
+    #tab-nodejs:checked ~ .tab-labels label[for="tab-nodejs"],
+    #tab-python:checked ~ .tab-labels label[for="tab-python"],
+    #tab-java:checked ~ .tab-labels label[for="tab-java"],
+    #tab-csharp:checked ~ .tab-labels label[for="tab-csharp"] {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    #tab-curl:checked ~ .panel-curl,
+    #tab-nodejs:checked ~ .panel-nodejs,
+    #tab-python:checked ~ .panel-python,
+    #tab-java:checked ~ .panel-java,
+    #tab-csharp:checked ~ .panel-csharp {
+      display: block;
+    }
+
+
+    footer.doc-foot {
+      margin-top: 48px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .mobile-toc {
+      display: none;
+      margin: 0 20px 8px;
+    }
+
+    .mobile-toc details {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .mobile-toc summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .mobile-toc ul {
+      list-style: none;
+      padding: 10px 0 4px;
+      margin: 0;
+    }
+
+    .mobile-toc a {
+      display: block;
+      padding: 6px 0;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { display: none; }
+      .mobile-toc { display: block; }
+      main { padding: 24px 20px 64px; }
+      header.top { padding: 0 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"></div>
+      <h1>Arcon OCR API</h1>
+      <span class="badge">v1.0</span>
+    </div>
+  </header>
+
+  <div class="mobile-toc">
+    <details>
+      <summary>Contents</summary>
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#howto">How to call</a></li>
+        <li><a href="#auth">Authentication</a></li>
+        <li><a href="#rate">Rate limiting</a></li>
+        <li><a href="#types">File types</a></li>
+        <li><a href="#health">GET /api/health</a></li>
+        <li><a href="#ocr">POST /api/ocr</a></li>
+        <li><a href="#response">Invoice JSON</a></li>
+        <li><a href="#fields">Field reference</a></li>
+        <li><a href="#errors">Errors</a></li>
+        <li><a href="#examples">Examples</a></li>
+      </ul>
+    </details>
+  </div>
+
+  <div class="layout">
+    <aside>
+      <p class="nav-label">Contents</p>
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#howto">How to call</a></li>
+        <li><a href="#auth">Authentication</a></li>
+        <li><a href="#rate">Rate limiting</a></li>
+        <li><a href="#types">File types</a></li>
+        <li><a href="#health">GET /api/health</a></li>
+        <li><a href="#ocr">POST /api/ocr</a></li>
+        <li><a href="#response">Invoice JSON</a></li>
+        <li><a href="#fields">Field reference</a></li>
+        <li><a href="#errors">Errors</a></li>
+        <li><a href="#examples">Examples</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <div class="hero">
+        <h2>Invoice OCR API</h2>
+        <p>
+          Extract structured invoice data from PDF, images, and Office documents.
+          Default response is a JDE-ready invoice JSON object with English field names.
+        </p>
+        <div class="base-url"><span>Base URL</span> https://arcon-oc.fly-work.com</div>
+      </div>
+
+      <section id="overview">
+        <h2>Overview</h2>
+        <table>
+          <tr><th>Property</th><th>Value</th></tr>
+          <tr><td>Default profile</td><td><code>jde_invoice</code></td></tr>
+          <tr><td>Default response</td><td>Invoice JSON only (no OCR envelope)</td></tr>
+          <tr><td>Max file size</td><td><strong>25 MB</strong></td></tr>
+          <tr><td>Rate limit</td><td><strong>30 / 15 min</strong> per IP</td></tr>
+          <tr><td>Recommended timeout</td><td>≥ 180 seconds</td></tr>
+          <tr><td>Auth</td><td><code>Authorization: Bearer &lt;token&gt;</code></td></tr>
+        </table>
+      </section>
+
+      <section id="howto">
+        <h2>How to call the API</h2>
+        <p>
+          <code>POST https://arcon-oc.fly-work.com/api/ocr</code><br />
+          Header: <code>Authorization: Bearer YOUR_API_TOKEN</code><br />
+          Body: multipart form field <code>file</code> = invoice PDF/image
+        </p>
+
+        <div class="lang-tabs">
+          <input type="radio" name="lang" id="tab-curl" checked />
+          <input type="radio" name="lang" id="tab-nodejs" />
+          <input type="radio" name="lang" id="tab-python" />
+          <input type="radio" name="lang" id="tab-java" />
+          <input type="radio" name="lang" id="tab-csharp" />
+
+          <div class="tab-labels">
+            <label for="tab-curl">cURL</label>
+            <label for="tab-nodejs">Node.js</label>
+            <label for="tab-python">Python</label>
+            <label for="tab-java">Java</label>
+            <label for="tab-csharp">C#</label>
+          </div>
+
+          <div class="panel panel-curl">
+            <pre><code>curl -X POST "https://arcon-oc.fly-work.com/api/ocr" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -F "file=@./invoice.pdf"</code></pre>
+          </div>
+
+          <div class="panel panel-nodejs">
+            <pre><code>import fs from 'node:fs';
+import FormData from 'form-data'; // npm i form-data
+
+const API_URL = 'https://arcon-oc.fly-work.com/api/ocr';
+const API_TOKEN = 'YOUR_API_TOKEN';
+
+const form = new FormData();
+form.append('file', fs.createReadStream('./invoice.pdf'));
+
+const response = await fetch(API_URL, {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${API_TOKEN}`,
+    ...form.getHeaders(),
+  },
+  body: form,
+});
+
+const invoice = await response.json();
+console.log(invoice);</code></pre>
+          </div>
+
+          <div class="panel panel-python">
+            <pre><code>import requests
+
+response = requests.post(
+    "https://arcon-oc.fly-work.com/api/ocr",
+    headers={"Authorization": "Bearer YOUR_API_TOKEN"},
+    files={"file": open("invoice.pdf", "rb")},
+    timeout=180,
+)
+
+invoice = response.json()
+print(invoice)</code></pre>
+          </div>
+
+          <div class="panel panel-java">
+            <pre><code>// OkHttp (recommended)
+// implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+OkHttpClient client = new OkHttpClient.Builder()
+    .callTimeout(Duration.ofSeconds(180))
+    .build();
+
+RequestBody fileBody = RequestBody.create(
+    new File("invoice.pdf"),
+    MediaType.parse("application/pdf")
+);
+
+MultipartBody body = new MultipartBody.Builder()
+    .setType(MultipartBody.FORM)
+    .addFormDataPart("file", "invoice.pdf", fileBody)
+    .build();
+
+Request request = new Request.Builder()
+    .url("https://arcon-oc.fly-work.com/api/ocr")
+    .addHeader("Authorization", "Bearer YOUR_API_TOKEN")
+    .post(body)
+    .build();
+
+try (Response response = client.newCall(request).execute()) {
+    String invoiceJson = response.body().string();
+    System.out.println(invoiceJson);
+}</code></pre>
+          </div>
+
+          <div class="panel panel-csharp">
+            <pre><code>using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(180) };
+client.DefaultRequestHeaders.Authorization =
+    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "YOUR_API_TOKEN");
+
+using var content = new MultipartFormDataContent();
+await using var stream = File.OpenRead("invoice.pdf");
+content.Add(new StreamContent(stream), "file", "invoice.pdf");
+
+var response = await client.PostAsync("https://arcon-oc.fly-work.com/api/ocr", content);
+var invoiceJson = await response.Content.ReadAsStringAsync();
+Console.WriteLine(invoiceJson);</code></pre>
+          </div>
+        </div>
+
+        <div class="callout">
+          <strong>Success</strong> → HTTP 200, body is the invoice JSON.<br />
+          <strong>Missing token</strong> → HTTP 401, <code>UNAUTHORIZED</code>.
+        </div>
+      </section>
+
+      <section id="auth">
+        <h2>Authentication</h2>
+        <p><code>POST /api/ocr</code> requires a token when the server has <code>API_AUTH_TOKEN</code> configured:</p>
+        <pre><code>Authorization: Bearer YOUR_API_TOKEN
+# or
+X-API-Key: YOUR_API_TOKEN</code></pre>
+        <p class="muted"><code>GET /api/health</code> is public and returns <code>authRequired</code>.</p>
+        <p>Invalid or missing token → HTTP <code>401</code>, <code>error.code = UNAUTHORIZED</code>.</p>
+      </section>
+
+      <section id="rate">
+        <h2>Rate limiting</h2>
+        <p>Default limit is 30 requests / 15 minutes per IP. Exceeding it returns HTTP <code>429</code> with <code>error.code = RATE_LIMITED</code>.</p>
+      </section>
+
+      <section id="types">
+        <h2>Supported file types</h2>
+        <table>
+          <tr><th>Type</th><th>Formats</th><th>Invoice extraction</th></tr>
+          <tr><td><code>pdf</code></td><td>PDF</td><td>Yes</td></tr>
+          <tr><td><code>image</code></td><td>JPEG, PNG, WebP, …</td><td>Yes</td></tr>
+          <tr><td><code>docx</code> / <code>pptx</code></td><td>OOXML</td><td>Yes</td></tr>
+          <tr><td>Legacy Office</td><td>.doc / .xls / .ppt</td><td>No</td></tr>
+        </table>
+      </section>
+
+      <section id="health">
+        <h2>GET /api/health</h2>
+        <div class="endpoint">
+          <span class="method get">GET</span>
+          <span class="path">/api/health</span>
+        </div>
+        <pre><code>{
+  "ok": true,
+  "mistralConfigured": true,
+  "authRequired": true
+}</code></pre>
+      </section>
+
+      <section id="ocr">
+        <h2>POST /api/ocr</h2>
+        <div class="endpoint">
+          <span class="method post">POST</span>
+          <span class="path">/api/ocr</span>
+        </div>
+
+        <h3>Multipart fields</h3>
+        <table>
+          <tr><th>Field</th><th>Required</th><th>Description</th></tr>
+          <tr><td><code>file</code></td><td>Yes*</td><td>Document upload</td></tr>
+          <tr><td><code>profile</code></td><td>No</td><td><code>jde_invoice</code> (default) or <code>none</code></td></tr>
+          <tr><td><code>responseMode</code></td><td>No</td><td><code>structured</code> (default) or <code>full</code></td></tr>
+          <tr><td><code>provider</code></td><td>No</td><td><code>auto</code> | <code>mistral</code> | <code>tesseract</code></td></tr>
+          <tr><td><code>pages</code></td><td>No</td><td><code>"[0,1]"</code> — 0-based</td></tr>
+        </table>
+        <p class="muted">* Or send JSON body with <code>url</code> or <code>base64</code>.</p>
+
+        <div class="callout">
+          Default: <code>profile=jde_invoice</code> + <code>responseMode=structured</code>
+          → response body is the invoice object only.
+        </div>
+      </section>
+
+      <section id="response">
+        <h2>Default response — invoice JSON</h2>
+        <p class="muted">Empty shape (types only). Real values are filled from the uploaded document.</p>
+        <pre><code>{
+  "InvoiceNumber": "",
+  "InvoiceDate": "",
+  "GLDate": "",
+  "InvoiceType": "",
+  "DocumentNo": "",
+  "CustomizationNo": "",
+  "Scenario": "",
+  "ETTN": "",
+  "CurrencyCode": "",
+  "ExchangeRate": 0,
+  "RemarkHeader": "",
+  "Seller": {
+    "Name": "",
+    "Address": "",
+    "Phone": "",
+    "Fax": "",
+    "Email": "",
+    "TaxOffice": "",
+    "TaxNumber": "",
+    "Website": "",
+    "TradeRegistryNo": "",
+    "MersisNo": "",
+    "BusinessCenter": ""
+  },
+  "Buyer": {
+    "Name": "",
+    "Address": "",
+    "Phone": "",
+    "Fax": "",
+    "Email": "",
+    "TaxOffice": "",
+    "TaxNumber": "",
+    "Website": "",
+    "TradeRegistryNo": "",
+    "MersisNo": "",
+    "BusinessCenter": ""
+  },
+  "GoodsServicesTotal": 0,
+  "TotalDiscount": 0,
+  "CalculatedVAT": 0,
+  "TotalIncludingTaxes": 0,
+  "PayableAmount": 0,
+  "InvoiceLines": [
+    {
+      "LineNo": "",
+      "ItemCode": "",
+      "Remark": "",
+      "Quantity": 0,
+      "Unit": "",
+      "UnitPrice": 0,
+      "TaxRate": "",
+      "TaxAmount": 0,
+      "TaxableAmount": 0,
+      "GrossAmount": 0,
+      "AccountID": "",
+      "Subledger": "",
+      "AssetID": "",
+      "PolarisProjectNo": "",
+      "Subchannel": "",
+      "PolarisCostCenter": "",
+      "PaymentTermsCode": "",
+      "TaxExplanationCode": ""
+    }
+  ]
+}</code></pre>
+      </section>
+
+      <section id="fields">
+        <h2>Field reference</h2>
+
+        <h3>Totals (same level as InvoiceLines)</h3>
+        <table>
+          <tr><th>Field</th><th>Description</th></tr>
+          <tr><td><code>GoodsServicesTotal</code></td><td>Goods/services total (ex-VAT)</td></tr>
+          <tr><td><code>TotalDiscount</code></td><td>Total discount</td></tr>
+          <tr><td><code>CalculatedVAT</code></td><td>Total VAT</td></tr>
+          <tr><td><code>TotalIncludingTaxes</code></td><td>Total including tax</td></tr>
+          <tr><td><code>PayableAmount</code></td><td>Amount due</td></tr>
+        </table>
+
+        <h3>InvoiceLines[] — one object per line</h3>
+        <table>
+          <tr><th>Field</th><th>Description</th></tr>
+          <tr><td><code>LineNo</code></td><td>Line number</td></tr>
+          <tr><td><code>ItemCode</code></td><td>Product code</td></tr>
+          <tr><td><code>Remark</code></td><td>Description</td></tr>
+          <tr><td><code>Quantity</code> / <code>Unit</code></td><td>Qty + unit</td></tr>
+          <tr><td><code>UnitPrice</code></td><td>Unit price</td></tr>
+          <tr><td><code>TaxRate</code></td><td>VAT rate text</td></tr>
+          <tr><td><code>TaxAmount</code></td><td>VAT amount</td></tr>
+          <tr><td><code>TaxableAmount</code></td><td>Line amount ex-VAT</td></tr>
+          <tr><td><code>GrossAmount</code></td><td>Taxable + VAT</td></tr>
+          <tr><td><code>AccountID</code>, …</td><td>JDE fields (often empty)</td></tr>
+        </table>
+      </section>
+
+      <section id="errors">
+        <h2>Error codes</h2>
+        <table>
+          <tr><th>Code</th><th>HTTP</th><th>Meaning</th></tr>
+          <tr><td><code>UNAUTHORIZED</code></td><td>401</td><td>Missing/invalid API token</td></tr>
+          <tr><td><code>NO_INPUT</code></td><td>400</td><td>Missing file/url/base64</td></tr>
+          <tr><td><code>UNSUPPORTED_FILE_TYPE</code></td><td>415</td><td>Unsupported type</td></tr>
+          <tr><td><code>FILE_TOO_LARGE</code></td><td>413</td><td>Over size limit</td></tr>
+          <tr><td><code>RATE_LIMITED</code></td><td>429</td><td>Too many requests</td></tr>
+          <tr><td><code>MISTRAL_REQUEST_FAILED</code></td><td>502</td><td>Upstream OCR error</td></tr>
+        </table>
+        <p class="muted">Errors use <code>{ "ok": false, "error": { "code", "message" } }</code>.</p>
+      </section>
+
+      <section id="examples">
+        <h2>Examples</h2>
+        <p class="muted">Same request patterns as <a href="#howto">How to call</a> — pick your language there.</p>
+      </section>
+
+      <footer class="doc-foot">
+        Arcon OCR API v1.0 · Fly Work
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
